@@ -6,3 +6,14 @@ source "https://rubygems.org"
 gemspec
 
 gem "rake", "~> 13.0"
+
+group :development, :test do
+  gem 'rubocop-git'
+  gem 'rubocop-rspec'
+end
+
+group :test do
+  gem 'rspec'
+  gem 'shoulda'
+  gem 'shoulda-matchers'
+end
