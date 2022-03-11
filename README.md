@@ -53,6 +53,22 @@ C.new.takes_specific_value(1) # => 'ok'
 C.new.takes_specific_value(2) # => error!
 ```
 
+### Regex checks
+
+```ruby
+class C
+  param :value, /^mo[dmo]$/
+  def foo(value)
+    'ok'
+  end
+end
+
+C.new.foo('mob') # => 'ok'
+C.new.foo('mom') # => 'ok'
+C.new.foo('moo') # => 'ok'
+C.new.foo('mop') # => error!
+```
+
 ### Array checks
 
 ```ruby
@@ -84,6 +100,36 @@ C.new.takes_generic(:symbol) # => 'ok'
 C.new.takes_generic(0) # => 'ok'
 C.new.takes_generic(nil) # => 'ok'
 C.new.takes_generic(1234) # => error!
+```
+
+### Structure checks
+
+Checks can be added to check the structure of array or hash parameters and return values.  Use the `ArrayOf` helper method to define a contract that matches to every element of an array (it also checks that the parameter is itself an `Array`).  Similarly, the `HashOf` helper method can be used to define a contract for every key and a separate contract for every value in the hash.  Elementwise or key-/value-wise contracts can be specified as usual, so `param :nested_array, ArrayOf(ArrayOf(Integer))` will only match an array of arrays like `[[1, 2, 3], [4, 5, 6]]` but not `[[1, 2, 3], 4, 5, 6]`
+
+```ruby
+class C
+  # :array takes an array of zero or more integers
+  param :array, ArrayOf(Integer)
+  param :hash, HashOf(Symbol, [String, Symbol])
+  def structured_args(array, hash)
+    'ok'
+  end
+
+  param :array, ArrayOf(ArrayOf(Integer))
+  def accepts_nested_arrays(array)
+    'ok'
+  end
+end
+
+C.new.structured_args([], {}) # => 'ok'
+C.new.structured_args([1, 2, 3], { foo: 'bar', bar: :baz }) # => 'ok'
+C.new.structured_args(%w[1 2 3], {}) # => error!
+C.new.structured_args([], { 'foo' => 'bar' }) # error!
+
+C.new.accepts_nested_arrays([]) # => 'ok'
+C.new.accepts_nested_arrays([[]]) # => 'ok'
+C.new.accepts_nested_arrays([1, 2, 3]) # => error!  not a nested array
+C.new.accepts_nested_arrays([[1, 2, 3]]) # => 'ok'
 ```
 
 ### Custom matcher logic

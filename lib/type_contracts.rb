@@ -9,6 +9,10 @@ require_relative 'type_contracts/matchers/custom_proc'
 require_relative 'type_contracts/matchers/exactly'
 require_relative 'type_contracts/matchers/instanceof'
 require_relative 'type_contracts/matchers/match_any'
+require_relative 'type_contracts/matchers/regular_expression'
+require_relative 'type_contracts/matchers/structure'
+require_relative 'type_contracts/matchers/structure/array_structure_matcher'
+require_relative 'type_contracts/matchers/structure/hash_structure_matcher'
 
 module TypeContracts
   class Error < StandardError; end
@@ -49,6 +53,8 @@ module TypeContracts
     case contract
     when TypeContracts::Matchers::Base
       contract # If given a custom matcher object, use it
+    when Regexp
+      TypeContracts::Matchers::RegularExpression.new(contract)
     when Proc
       TypeContracts::Matchers::CustomProc.new(contract)
     when Array
