@@ -26,7 +26,7 @@ module TypeContracts
 
         clazz.alias_method stubbed_method_name, method_name
 
-        clazz.define_method(method_name) do |*args, &block|
+        clazz.define_method(method_name) do |*args, **kwargs, &block|
           param_names = method(stubbed_method_name).parameters.map { |a| a[1] }
 
           param_contracts.each do |contract|
@@ -38,7 +38,7 @@ module TypeContracts
             contract.check_contract!(clazz, method_name, args[param_index])
           end
 
-          return_value = send(stubbed_method_name, *args, &block)
+          return_value = send(stubbed_method_name, *args, **kwargs, &block)
 
           return_contract&.check_contract!(clazz, method_name, return_value)
 
