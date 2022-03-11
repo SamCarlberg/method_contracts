@@ -145,7 +145,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/type_contracts.
+Bug reports and pull requests are welcome on GitHub at https://github.com/samcarlberg/type_contracts.
 
 ## License
 
