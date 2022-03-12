@@ -27,6 +27,23 @@ RSpec.describe TypeContracts::Param do
       def two_params(a, b)
         [a, b]
       end
+
+      param :args, ArrayOf(Integer)
+      param :kwargs, HashOf(Symbol, Integer)
+      def splatted(*args, **kwargs)
+        { args:, kwargs: }
+      end
+
+      param :a, Symbol
+      param :b, Symbol
+      param :c, Symbol
+      param :rest, ArrayOf(Symbol)
+      param :d, Symbol
+      param :e, Symbol
+      param :kwargs, Hash
+      def with_all_param_types(a, b, c = :default_c, *rest, d, e: :named_e, **kwargs)
+        { a:, b:, c:, rest:, d:, e:, kwargs: }
+      end
     end
   end
 
@@ -101,5 +118,47 @@ RSpec.describe TypeContracts::Param do
         TypeContracts::BrokenParamContractError,
         'Sample#two_params.b was :NaN, which does not match: be a Numeric'
       )
+  end
+
+  it 'supports variadic splat args' do
+    s = Sample.new
+
+    # expect(s.splatted).to eq({ args: [], kwargs: {} })
+    # expect(s.splatted(1, 2, 3)).to eq({ args: [1, 2, 3], kwargs: {} })
+    # expect(s.splatted(foo: 1)).to eq({ args: [], kwargs: { foo: 1 } })
+
+    expect { s.splatted('1', '2', '3') }
+      .to raise_error(
+        TypeContracts::BrokenParamContractError,
+        'Sample#splatted.args was ["1", "2", "3"], which does not match: an array of elements matching be a Integer'
+      )
+  end
+
+  it 'supports all param types' do
+    s = Sample.new
+
+    # With all args
+    expect(s.with_all_param_types(:a, :b, :c, :blah, :blah, :blah, :d, e: :named_e, kwarg1: 1, kwarg2: 2))
+      .to eq({
+        a: :a,
+        b: :b,
+        c: :c,
+        rest: [:blah, :blah, :blah],
+        d: :d,
+        e: :named_e,
+        kwargs: { kwarg1: 1, kwarg2: 2 }
+      })
+
+    # Without vararg or kwarg arguments
+    expect(s.with_all_param_types(:a, :b, :c, :d, e: :named_e))
+      .to eq({
+        a: :a,
+        b: :b,
+        c: :c,
+        rest: [],
+        d: :d,
+        e: :named_e,
+        kwargs: {}
+      })
   end
 end
