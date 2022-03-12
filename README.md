@@ -2,7 +2,11 @@
 
 A pure Ruby implementation of runtime type checking.
 
-This adds runtime type checking and validation to method parameters and return values.  By default, this gem only supports validating types and exact values, but custom matchers can be created and specified
+This adds runtime type checking and validation to method parameters and return values.  By default, this gem only supports validating types and exact values, but custom matchers can be created and specified.  Contracts can be specified on parameters using the `params <param_name>, <contract>` syntax; contracts on return values can be specified by `returns <contract>`, `returns_a <Type>`, or `returns_an <Type>` (eg `returns_a String`, `returns_an ArrayOf(String)`).
+
+Contracts can be specified as a module/class, which will test for inheritance (`param :foo, String`); an explicit value, which will test for equality `param :foo, 'A string'`; a regular expression (`param :foo, /An? (array|string)/`); an array of elements that all match the same contract (`param :foo, ArrayOf(String)`); a hash with keys matching one contract and values matching another (`param :hash, HashOf(Symbol, Integer)`); or an array of contracts, which will test that any contract in that array matches (`param :foo, [String, Symbol]` matches when `foo` is either a string or a symbol).
+
+If none of the built-in contract types work, you can subclass `TypeContracts::Matchers::Base` and define the `match?(value)` and `to_s` methods, then pass an instance of your custom matcher to the `param` or `return` call.
 
 ## Installation
 
