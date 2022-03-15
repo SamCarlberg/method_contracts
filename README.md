@@ -33,7 +33,7 @@ class C
   param :x, String
   param :y, Numeric
   param :z, Hash
-  returns Array # or returns_a Array
+  returns_an Array
   def takes_three(x, y, z)
     [x, y, z]
   end
@@ -48,6 +48,7 @@ C.new.takes_three(:x, 1, { z: :z })  # => error!  x is a Symbol, but should be a
 ```ruby
 class C
   param :x, 1
+  returns 'ok'
   def takes_specific_value(x)
     'ok'
   end
@@ -62,12 +63,13 @@ C.new.takes_specific_value(2) # => error!
 ```ruby
 class C
   param :value, /^mo[dmo]$/
+  returns 'ok'
   def foo(value)
     'ok'
   end
 end
 
-C.new.foo('mob') # => 'ok'
+C.new.foo('mod') # => 'ok'
 C.new.foo('mom') # => 'ok'
 C.new.foo('moo') # => 'ok'
 C.new.foo('mop') # => error!
@@ -78,6 +80,7 @@ C.new.foo('mop') # => error!
 ```ruby
 class C
   param :strategy, %i[foo bar baz]
+  returns 'ok'
   def takes_any_of(strategy)
     'ok'
   end
@@ -94,6 +97,7 @@ C.new.takes_any_of(:wrong) # => error!
 ```ruby
 class C
   param :x, [String, Symbol, 0, nil]
+  returns 'ok'
   def takes_generic(x)
     'ok'
   end
@@ -115,11 +119,13 @@ class C
   # :array takes an array of zero or more integers
   param :array, ArrayOf(Integer)
   param :hash, HashOf(Symbol, [String, Symbol])
+  returns 'ok'
   def structured_args(array, hash)
     'ok'
   end
 
   param :array, ArrayOf(ArrayOf(Integer))
+  returns 'ok'
   def accepts_nested_arrays(array)
     'ok'
   end
