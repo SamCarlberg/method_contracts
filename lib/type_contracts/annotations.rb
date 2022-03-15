@@ -11,18 +11,72 @@ module TypeContracts
     class MethodRedefinition
       NOT_PROVIDED = Object.new.freeze
 
-      def initialize(clazz, method_name)
+      INSTANCE_METHOD = :instance_method
+      SINGLETON_METHOD = :singleton_method
+
+      attr_reader :clazz, :method_name, :method_type
+
+      def initialize(clazz, method_name, method_type:)
         @clazz = clazz
         @method_name = method_name
+        @method_type = method_type
 
-        method = clazz.instance_method(method_name)
+        method = case method_type
+                 when INSTANCE_METHOD
+                   clazz.instance_method(method_name)
+                 when SINGLETON_METHOD
+                   clazz.method(method_name)
+                 end
         @params = method.parameters.map(&:reverse).to_h
         @params_array = @params.to_a
 
-        @variadic  = @params.find { |name, option| option == :rest }
-        @kwariatic = @params.find { |name, option| option == :keyrest }
+        @variadic  = @params.find { |name, option| option == :rest }&.first
+        @kwariatic = @params.find { |name, option| option == :keyrest }&.first
 
         @num_params = @params.size - (@kwariatic ? 1 : 0)
+      end
+
+      def redefine!(annotation)
+        param_contracts = annotation[:params] || [] # default in case no param annotations exist
+        return_contract = annotation[:return]
+
+        stubbed_method_name = "__original_#{method_name}__"
+
+        case method_type
+        when INSTANCE_METHOD
+          definer_method_name = :define_method
+          clazz.alias_method stubbed_method_name, method_name
+        when SINGLETON_METHOD
+          clazz.singleton_class.alias_method stubbed_method_name, method_name
+          definer_method_name = :define_singleton_method
+        end
+
+        clazz.send(definer_method_name, method_name) do |*args, **kwargs, &block|
+          redefiner = annotation[:_redefiner]
+          recombined = redefiner.recombine(*args, **kwargs)
+
+          if recombined.values.none? { |v| v == TypeContracts::Annotations::MethodRedefinition::NOT_PROVIDED }
+            # Skip validation if any param is not provided;
+            # we'll get an error later when the argument list size mismatches
+            param_contracts.each do |contract|
+              unless recombined.key?(contract.param_name)
+                raise TypeContracts::ParameterDoesNotExistError.new(
+                  redefiner.clazz.name,
+                  redefiner.method_name,
+                  contract.param_name
+                )
+              end
+
+              contract.check_contract!(redefiner.clazz, redefiner.method_name, recombined[contract.param_name])
+            end
+          end
+
+          return_value = send(stubbed_method_name, *args, **kwargs, &block)
+
+          return_contract&.check_contract!(redefiner.clazz, redefiner.method_name, return_value)
+
+          return_value
+        end
       end
 
       # Recombines a splatted args array and kwargs hash into a single hash
@@ -61,11 +115,11 @@ module TypeContracts
 
         if @variadic
           # Really only used if no variadic params are passed
-          hash[@variadic[0]] ||= args
+          hash[@variadic] ||= args
         end
 
         if @kwariatic
-          hash[@kwariatic[0]] = kwargs
+          hash[@kwariatic] = kwargs
         end
 
         hash
@@ -110,38 +164,22 @@ module TypeContracts
         @__type_contracts__last_annotation = nil
         (@__type_contracts__annotations ||= {})[m] = annotation
 
-        clazz = self
-        method_name = m
-        param_contracts = annotation[:params] || [] # default in case no param annotations exist
-        return_contract = annotation[:return]
+        redefiner = MethodRedefinition.new(self, m, method_type: MethodRedefinition::INSTANCE_METHOD)
+        annotation[:_redefiner] = redefiner
+        redefiner.redefine!(annotation)
+      end
+    end
 
-        stubbed_method_name = "__original_#{method_name}__"
+    def singleton_method_added(m)
+      super
 
-        clazz.alias_method stubbed_method_name, method_name
+      if annotation = @__type_contracts__last_annotation
+        @__type_contracts__last_annotation = nil
+        (@__type_contracts__annotations ||= {})[m] = annotation
 
-        clazz.define_method(method_name) do |*args, **kwargs, &block|
-          recombiner = annotation[:_recombiner] ||=
-            TypeContracts::Annotations::MethodRedefinition.new(clazz, stubbed_method_name)
-          reorganized = recombiner.recombine(*args, **kwargs)
-
-          if reorganized.values.none? { |v| v == TypeContracts::Annotations::MethodRedefinition::NOT_PROVIDED }
-            # Skip validation if any param is not provided;
-            # we'll get an error later when the argument list size mismatches
-            param_contracts.each do |contract|
-              unless reorganized.key?(contract.param_name)
-                raise TypeContracts::ParameterDoesNotExistError.new(clazz.name, method_name, contract.param_name)
-              end
-
-              contract.check_contract!(clazz, method_name, reorganized[contract.param_name])
-            end
-          end
-
-          return_value = send(stubbed_method_name, *args, **kwargs, &block)
-
-          return_contract&.check_contract!(clazz, method_name, return_value)
-
-          return_value
-        end
+        redefiner = MethodRedefinition.new(self, m, method_type: MethodRedefinition::SINGLETON_METHOD)
+        annotation[:_redefiner] = redefiner
+        redefiner.redefine!(annotation)
       end
     end
   end

@@ -44,6 +44,18 @@ RSpec.describe TypeContracts::Param do
       def with_all_param_types(a, b, c = :default_c, *rest, d, e: :named_e, **kwargs)
         { a:, b:, c:, rest:, d:, e:, kwargs: }
       end
+
+      param :x, Integer
+      def self.self_method(x)
+        x
+      end
+
+      class << self
+        param :x, Integer
+        def singleton_class_method(x)
+          x
+        end
+      end
     end
   end
 
@@ -160,5 +172,23 @@ RSpec.describe TypeContracts::Param do
         e: :named_e,
         kwargs: {}
       })
+  end
+
+  it 'supports self.<method> methods' do
+    expect(Sample.self_method(10)).to eq 10
+    expect { Sample.self_method(:not_an_int) }.to raise_error(
+      TypeContracts::BrokenParamContractError,
+      'Sample#self_method.x was :not_an_int, which does not match: be a Integer'
+    )
+  end
+
+  it 'supports singleton methods' do
+    skip 'TODO: support this!'
+
+    expect(Sample.singleton_class_method(10)).to eq 10
+    expect { Sample.singleton_class_method(:not_an_int) }.to raise_error(
+      TypeContracts::BrokenParamContractError,
+      'Sample#self_method.x was :not_an_int, which does not match: be a Integer'
+    )
   end
 end
