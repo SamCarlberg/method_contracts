@@ -5,6 +5,8 @@ require 'spec_helper'
 RSpec.describe TypeContracts::Return do
   let!(:clazz) do
     class Sample
+      TypeContracts.apply!(self)
+
       returns nil
       def returns_nil(x)
         x

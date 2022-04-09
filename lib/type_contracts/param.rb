@@ -44,5 +44,3 @@ module TypeContracts
     end
   end
 end
-
-Module.include TypeContracts::Param::Mixin

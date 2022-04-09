@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
 require_relative 'type_contracts/annotations'
+require_relative 'type_contracts/config'
 require_relative 'type_contracts/param'
 require_relative 'type_contracts/return'
+require_relative 'type_contracts/t'
 require_relative 'type_contracts/version'
 require_relative 'type_contracts/matchers/base'
 require_relative 'type_contracts/matchers/custom_proc'
@@ -64,5 +66,35 @@ module TypeContracts
     else
       TypeContracts::Matchers::Exactly.new(contract)
     end
+  end
+
+  def self.config
+    Config.config
+  end
+
+  def self.configure(&block)
+    Config.configure(&block)
+  end
+
+  # Injects the type contracts methods into the given class or module.
+  # Has no effect if type contracts are declared to be used globally.
+  #
+  # @example
+  #  class MyClass
+  #   TypeContracts.apply!(self)
+  #
+  #   param :obj, String
+  #   returns nil
+  #   def pretty_print(obj)
+  #     puts obj.inspect
+  #   end
+  # end
+  #
+  # MyClass.new.pretty_print(nil) # => BrokenParamContractError
+  # MyClass.new.pretty_print('something') # => 'something'
+  #
+  # @param module_or_class [Module] the module or class to apply type contracts to.
+  def self.apply!(module_or_class)
+    module_or_class.extend TypeContracts::T
   end
 end

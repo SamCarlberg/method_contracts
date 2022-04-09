@@ -47,5 +47,3 @@ module TypeContracts
     end
   end
 end
-
-Module.include TypeContracts::Return::Mixin

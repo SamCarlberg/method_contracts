@@ -37,6 +37,11 @@ module TypeContracts
       end
 
       def redefine!(annotation)
+        annotation[:_redefined] = false
+
+        # Only redefine the method if the library is enabled
+        return unless TypeContracts.config.enabled?
+
         param_contracts = annotation[:params] || [] # default in case no param annotations exist
         return_contract = annotation[:return]
 
@@ -77,6 +82,8 @@ module TypeContracts
 
           return_value
         end
+
+        annotation[:_redefined] = true
       end
 
       # Recombines a splatted args array and kwargs hash into a single hash
@@ -184,5 +191,3 @@ module TypeContracts
     end
   end
 end
-
-Object.extend TypeContracts::Annotations
