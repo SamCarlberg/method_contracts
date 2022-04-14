@@ -17,6 +17,20 @@ permissions:
   contents: read
 
 jobs:
+  rubocop:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ruby-version: [3.1]
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby-version }}
+        bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+    - name: Rubocop
+      run: bundle exec rubocop-git -D origin/master...HEAD
   test:
     runs-on: ubuntu-latest
     strategy:
@@ -34,7 +48,5 @@ jobs:
       with:
         ruby-version: ${{ matrix.ruby-version }}
         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-    - name: Rubocop
-      run: bundle exec rubocop-git -D origin/master...HEAD
     - name: Run tests
       run: bundle exec rspec
