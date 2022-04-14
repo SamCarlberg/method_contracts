@@ -193,6 +193,36 @@ UsingCustomMatcher.new.foo(1) # => "ok"
 UsingCustomMatcher.new.foo(0) # => TypeContracts::BrokenParamContractError: UsingCustomMatcher#foo.bar was 0, which does not match: be a positive number
 ```
 
+### Configuration
+
+Type contracts are disabled by default, and can be enabled via the configuration object:
+
+```ruby
+TypeContracts.configure do |config|
+  config.enabled = true
+end
+```
+
+This must be set before any classes that use type contracts are loaded.
+
+Contracts can be added globally to all modules via `config.include_everywhere!`; however, be careful when using this since it can potentially cause conflicts with modules that already define methods named `annotations`, `param`, `returns`, `returns_a`, or `returns_an`.
+
+Contracts can be added to specific modules by extending the `TypeContracts::T` module:
+
+```ruby
+module MyModule
+  extend TypeContracts::T
+
+  # ... module contents ...
+end
+
+class MyClass
+  extend TypeContracts::T
+
+  # ... class contents ...
+end
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
