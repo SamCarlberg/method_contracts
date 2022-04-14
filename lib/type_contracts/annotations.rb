@@ -57,6 +57,7 @@ module TypeContracts
         end
 
         clazz.send(definer_method_name, method_name) do |*args, **kwargs, &block|
+          self_class = self.is_a?(Module) ? self : self.class
           redefiner = annotation[:_redefiner]
           recombined = redefiner.recombine(*args, **kwargs)
 
@@ -72,13 +73,17 @@ module TypeContracts
                 )
               end
 
-              contract.check_contract!(redefiner.clazz, redefiner.method_name, recombined[contract.param_name])
+              # ternary makes sure we're reporting the method from the class that the method is called on,
+              # not the class/module that defines the method.  This makes subclassing and mixin useage report
+              # the subclass or the module including the mixin, rather than the superclass or the mixin module
+              # that defines the method
+              contract.check_contract!(self_class, redefiner.method_name, recombined[contract.param_name])
             end
           end
 
           return_value = send(stubbed_method_name, *args, **kwargs, &block)
 
-          return_contract&.check_contract!(redefiner.clazz, redefiner.method_name, return_value)
+          return_contract&.check_contract!(self_class, redefiner.method_name, return_value)
 
           return_value
         end

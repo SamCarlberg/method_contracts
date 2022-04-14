@@ -244,4 +244,84 @@ RSpec.describe TypeContracts::Param do
       'WithAttrAccessor#attr_accessor_property=.value was :not_a_string, which does not match: be a String'
     )
   end
+
+  it 'supports inherited methods' do
+    class Superclass
+      extend TypeContracts::T
+
+      param :x, String
+      def inherited_method(x)
+        x
+      end
+    end
+
+    class Subclass < Superclass; end
+
+    expect { Subclass.new.inherited_method(:not_a_string) }.to raise_error(
+      TypeContracts::BrokenParamContractError,
+      'Subclass#inherited_method.x was :not_a_string, which does not match: be a String'
+    )
+  end
+
+  it 'supports inherited methods that call super' do
+    class Superclass
+      extend TypeContracts::T
+
+      param :x, String
+      def inherited_method(x)
+        x
+      end
+    end
+
+    class Subclass < Superclass
+      def inherited_method(*)
+        super
+      end
+    end
+
+    expect { Subclass.new.inherited_method(:not_a_string) }.to raise_error(
+      TypeContracts::BrokenParamContractError,
+      'Subclass#inherited_method.x was :not_a_string, which does not match: be a String'
+    )
+  end
+
+  it 'supports methods added from including a mixin' do
+    module Mixin
+      extend TypeContracts::T
+
+      param :x, String
+      def mixin_method(x)
+        x
+      end
+    end
+
+    class User
+      include Mixin
+    end
+
+    expect { User.new.mixin_method(:not_a_string) }.to raise_error(
+      TypeContracts::BrokenParamContractError,
+      'User#mixin_method.x was :not_a_string, which does not match: be a String'
+    )
+  end
+
+  it 'supports methods added from extending another module' do
+    module Extendee
+      extend TypeContracts::T
+
+      param :x, String
+      def mixin_method(x)
+        x
+      end
+    end
+
+    class Extender
+      extend Extendee
+    end
+
+    expect { Extender.mixin_method(:not_a_string) }.to raise_error(
+      TypeContracts::BrokenParamContractError,
+      'Extender#mixin_method.x was :not_a_string, which does not match: be a String'
+    )
+  end
 end
