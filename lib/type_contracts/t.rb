@@ -10,6 +10,7 @@ module TypeContracts
   #   end
   module T
     include TypeContracts::Annotations
+    include TypeContracts::Overrides
     include TypeContracts::Param::Mixin
     include TypeContracts::Return::Mixin
   end

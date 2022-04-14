@@ -3,9 +3,9 @@
 require 'spec_helper'
 
 RSpec.describe TypeContracts::Return do
-  let!(:clazz) do
+  let(:clazz) do
     class Sample
-      TypeContracts.apply!(self)
+      extend TypeContracts::T
 
       returns nil
       def returns_nil(x)
@@ -26,6 +26,14 @@ RSpec.describe TypeContracts::Return do
         x
       end
     end
+
+    Sample
+  end
+
+  before do
+    allow(TypeContracts.config)
+      .to receive(:enabled?)
+      .and_return(true)
   end
 
   after do
@@ -34,7 +42,7 @@ RSpec.describe TypeContracts::Return do
   end
 
   it 'supports returning nil' do
-    s = Sample.new
+    s = clazz.new
 
     expect { s.returns_nil(nil) }.not_to raise_error
     expect { s.returns_nil('not nil') }
@@ -45,7 +53,7 @@ RSpec.describe TypeContracts::Return do
   end
 
   it 'supports returning a string' do
-    s = Sample.new
+    s = clazz.new
 
     expect { s.returns_string(nil) }
       .to raise_error(
@@ -57,13 +65,13 @@ RSpec.describe TypeContracts::Return do
   end
 
   it 'does not care about unannotated methods' do
-    s = Sample.new
+    s = clazz.new
 
     expect(s.unannotated(nil)).to eq nil
   end
 
   it 'works when given a block' do
-    s = Sample.new
+    s = clazz.new
 
     expect(s.blocked(1)).to eq 1
     expect { s.blocked(0) }.to raise_error(

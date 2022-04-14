@@ -2,6 +2,7 @@
 
 require_relative 'type_contracts/annotations'
 require_relative 'type_contracts/config'
+require_relative 'type_contracts/overrides'
 require_relative 'type_contracts/param'
 require_relative 'type_contracts/return'
 require_relative 'type_contracts/t'

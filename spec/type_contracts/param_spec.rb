@@ -3,6 +3,12 @@
 require 'spec_helper'
 
 RSpec.describe TypeContracts::Param do
+  before do
+    allow(TypeContracts.config)
+      .to receive(:enabled?)
+      .and_return(true)
+  end
+
   let!(:clazz) do
     class ParamsSampleClass
       extend TypeContracts::T
@@ -194,6 +200,48 @@ RSpec.describe TypeContracts::Param do
     expect { ParamsSampleClass.singleton_class_method(:not_an_int) }.to raise_error(
       TypeContracts::BrokenParamContractError,
       'ParamsSampleClass#singleton_class_method.x was :not_an_int, which does not match: be a Integer'
+    )
+  end
+
+  it 'supports attr_writer-generated methods' do
+    class WithAttrWriter
+      extend TypeContracts::T
+
+      param :value, String
+      attr_writer :attr_writer_property
+    end
+
+    o = WithAttrWriter.new
+
+    expect { o.attr_writer_property = 'a string' }
+      .to change { o.instance_variable_get(:@attr_writer_property) }
+      .from(nil)
+      .to('a string')
+
+    expect { o.attr_writer_property = :not_a_string }.to raise_error(
+      TypeContracts::BrokenParamContractError,
+      'WithAttrWriter#attr_writer_property=.value was :not_a_string, which does not match: be a String'
+    )
+  end
+
+  it 'supports attr_accessor-generated methods' do
+    class WithAttrAccessor
+      extend TypeContracts::T
+
+      param :value, String
+      attr_accessor :attr_accessor_property
+    end
+
+    o = WithAttrAccessor.new
+
+    expect { o.attr_accessor_property = 'a string' }
+      .to change { o.attr_accessor_property }
+      .from(nil)
+      .to('a string')
+
+    expect { o.attr_accessor_property = :not_a_string }.to raise_error(
+      TypeContracts::BrokenParamContractError,
+      'WithAttrAccessor#attr_accessor_property=.value was :not_a_string, which does not match: be a String'
     )
   end
 end

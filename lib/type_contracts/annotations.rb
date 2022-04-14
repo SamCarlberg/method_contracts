@@ -171,6 +171,7 @@ module TypeContracts
         @__type_contracts__last_annotation = nil
         (@__type_contracts__annotations ||= {})[m] = annotation
 
+        return unless TypeContracts.config.enabled?
         redefiner = MethodRedefinition.new(self, m, method_type: MethodRedefinition::INSTANCE_METHOD)
         annotation[:_redefiner] = redefiner
         redefiner.redefine!(annotation)
@@ -184,6 +185,7 @@ module TypeContracts
         @__type_contracts__last_annotation = nil
         (@__type_contracts__annotations ||= {})[m] = annotation
 
+        return unless TypeContracts.config.enabled?
         redefiner = MethodRedefinition.new(self, m, method_type: MethodRedefinition::SINGLETON_METHOD)
         annotation[:_redefiner] = redefiner
         redefiner.redefine!(annotation)
