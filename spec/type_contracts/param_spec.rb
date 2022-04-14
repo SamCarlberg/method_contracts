@@ -39,7 +39,7 @@ RSpec.describe TypeContracts::Param do
       param :args, ArrayOf(Integer)
       param :kwargs, HashOf(Symbol, Integer)
       def splatted(*args, **kwargs)
-        { args:, kwargs: }
+        { args: args, kwargs: kwargs }
       end
 
       param :a, Symbol
@@ -50,7 +50,7 @@ RSpec.describe TypeContracts::Param do
       param :e, Symbol
       param :kwargs, Hash
       def with_all_param_types(a, b, c = :default_c, *rest, d, e: :named_e, **kwargs)
-        { a:, b:, c:, rest:, d:, e:, kwargs: }
+        { a: a, b: b, c: c, rest: rest, d: d, e: e, kwargs: kwargs }
       end
 
       param :x, Integer
