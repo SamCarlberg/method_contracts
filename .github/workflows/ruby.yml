@@ -18,7 +18,6 @@ permissions:
 
 jobs:
   test:
-
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -35,5 +34,7 @@ jobs:
       with:
         ruby-version: ${{ matrix.ruby-version }}
         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+    - name: Rubocop
+      run: bundle exec rubocop-git -D origin/master...HEAD
     - name: Run tests
       run: bundle exec rspec
