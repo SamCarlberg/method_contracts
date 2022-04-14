@@ -14,6 +14,4 @@ end
 
 group :test do
   gem 'rspec'
-  gem 'shoulda'
-  gem 'shoulda-matchers'
 end

@@ -68,8 +68,6 @@ RSpec.describe TypeContracts::Overrides do
     expect(instance).to respond_to :accessor_2=
     expect(instance).to respond_to :accessor_3
     expect(instance).to respond_to :accessor_3=
-
-    p instance.method(:"__original_single_writer=__").source_location
   end
 
   it 'generates the correct getter and setter methods when contracts are disabled' do
@@ -97,7 +95,5 @@ RSpec.describe TypeContracts::Overrides do
     expect(instance).to respond_to :accessor_2=
     expect(instance).to respond_to :accessor_3
     expect(instance).to respond_to :accessor_3=
-
-    p instance.method(:single_writer=).source_location
   end
 end
