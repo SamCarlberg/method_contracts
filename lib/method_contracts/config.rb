@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module TypeContracts
+module MethodContracts
   class Config
     def self.config
       @config ||= new
@@ -30,7 +30,7 @@ module TypeContracts
     def include_everywhere!
       return unless enabled?
 
-      TypeContracts.apply!(Module)
+      MethodContracts.apply!(Module)
     end
   end
 end

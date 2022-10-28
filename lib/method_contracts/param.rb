@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module TypeContracts
+module MethodContracts
   class Param
     NO_CONTRACT = Object.new.freeze
 
@@ -16,11 +16,11 @@ module TypeContracts
       #   a block provided instead; the block accepts the return value of the method and must
       #   return a boolean value
       def param(param_name, contract = NO_CONTRACT, &block)
-        contract = TypeContracts::Param.new(param_name, contract, &block)
+        contract = MethodContracts::Param.new(param_name, contract, &block)
 
-        @__type_contracts__last_annotation ||= {}
-        @__type_contracts__last_annotation[:params] ||= []
-        @__type_contracts__last_annotation[:params] << contract
+        @__method_contracts__last_annotation ||= {}
+        @__method_contracts__last_annotation[:params] ||= []
+        @__method_contracts__last_annotation[:params] << contract
       end
     end
 
@@ -34,12 +34,12 @@ module TypeContracts
       @param_name = param_name.to_sym
       @contract = block || contract
 
-      @matcher = TypeContracts.contract_to_matcher(@contract)
+      @matcher = MethodContracts.contract_to_matcher(@contract)
     end
 
     def check_contract!(clazz, method_name, value)
       unless @matcher.match?(value)
-        raise TypeContracts::BrokenParamContractError.new(clazz.name, method_name, @param_name, @matcher, value)
+        raise MethodContracts::BrokenParamContractError.new(clazz.name, method_name, @param_name, @matcher, value)
       end
     end
   end

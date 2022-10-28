@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module TypeContracts
+module MethodContracts
   module Matchers
     class Instanceof < Base
       def initialize(mod)

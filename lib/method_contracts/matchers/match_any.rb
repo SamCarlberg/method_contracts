@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-module TypeContracts
+module MethodContracts
   module Matchers
     class MatchAny < Base
       def initialize(array)
-        @matchers = array.map(&TypeContracts.method(:contract_to_matcher))
+        @matchers = array.map(&MethodContracts.method(:contract_to_matcher))
       end
 
       def match?(value)

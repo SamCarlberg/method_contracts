@@ -2,11 +2,11 @@
 
 require 'spec_helper'
 
-RSpec.describe TypeContracts::Overrides do
+RSpec.describe MethodContracts::Overrides do
   let(:helper_class) do
     class HelperClass
-      extend TypeContracts::T
-      extend TypeContracts::Overrides
+      extend MethodContracts::T
+      extend MethodContracts::Overrides
 
       # attr_writer
       param :value, Object
@@ -34,7 +34,7 @@ RSpec.describe TypeContracts::Overrides do
   end
 
   before do
-    allow(TypeContracts.config)
+    allow(MethodContracts.config)
       .to receive(:enabled?)
       .and_return(true)
   end
@@ -44,7 +44,7 @@ RSpec.describe TypeContracts::Overrides do
   end
 
   it 'generates the correct getter and setter methods when contracts are enabled' do
-    allow(TypeContracts.config)
+    allow(MethodContracts.config)
       .to receive(:enabled?)
       .and_return(true)
 
@@ -71,7 +71,7 @@ RSpec.describe TypeContracts::Overrides do
   end
 
   it 'generates the correct getter and setter methods when contracts are disabled' do
-    allow(TypeContracts.config)
+    allow(MethodContracts.config)
       .to receive(:enabled?)
       .and_return(false)
 

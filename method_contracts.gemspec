@@ -1,24 +1,24 @@
 # frozen_string_literal: true
 
-require_relative 'lib/type_contracts/version'
+require_relative 'lib/method_contracts/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'type_contracts'
-  spec.version       = TypeContracts::VERSION
+  spec.name          = 'method_contracts'
+  spec.version       = MethodContracts::VERSION
   spec.authors       = ['Sam Carlberg']
   spec.email         = ['sam@slfc.dev']
 
   spec.summary       = 'Adds a DSL to the Ruby language to add type contracts to methods'
   spec.description   = ''
-  spec.homepage      = 'https://github.com/samcarlberg/type_contracts'
+  spec.homepage      = 'https://github.com/samcarlberg/method_contracts'
   spec.license       = 'MIT'
   spec.required_ruby_version = '>= 2.4.0'
 
   spec.metadata['allowed_push_host'] = "TODO: Set to 'https://mygemserver.com'"
 
   spec.metadata['homepage_uri'] = spec.homepage
-  spec.metadata['source_code_uri'] = 'https://github.com/samcarlberg/type_contracts.git'
-  spec.metadata['changelog_uri'] = 'https://github.com/samcarlberg/type_contracts/tree/master/CHANGELOG.md'
+  spec.metadata['source_code_uri'] = 'https://github.com/samcarlberg/method_contracts.git'
+  spec.metadata['changelog_uri'] = 'https://github.com/samcarlberg/method_contracts/tree/master/CHANGELOG.md'
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.

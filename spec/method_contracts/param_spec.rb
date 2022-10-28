@@ -2,16 +2,16 @@
 
 require 'spec_helper'
 
-RSpec.describe TypeContracts::Param do
+RSpec.describe MethodContracts::Param do
   before do
-    allow(TypeContracts.config)
+    allow(MethodContracts.config)
       .to receive(:enabled?)
       .and_return(true)
   end
 
   let!(:clazz) do
     class ParamsSampleClass
-      extend TypeContracts::T
+      extend MethodContracts::T
 
       param :x, Integer
       def foo(x)
@@ -60,7 +60,7 @@ RSpec.describe TypeContracts::Param do
 
       class << self
         # The metaclass doesn't get the mixins, so we need to re-include it here
-        extend TypeContracts::T
+        extend MethodContracts::T
 
         param :x, Integer
         def singleton_class_method(x)
@@ -88,13 +88,13 @@ RSpec.describe TypeContracts::Param do
 
     expect { s.foo('1') }
       .to raise_error(
-        TypeContracts::BrokenParamContractError,
+        MethodContracts::BrokenParamContractError,
         'ParamsSampleClass#foo.x was "1", which does not match: be a Integer'
       )
 
     expect { s.foo(nil) }
       .to raise_error(
-        TypeContracts::BrokenParamContractError,
+        MethodContracts::BrokenParamContractError,
         'ParamsSampleClass#foo.x was nil, which does not match: be a Integer'
       )
   end
@@ -110,7 +110,7 @@ RSpec.describe TypeContracts::Param do
 
     expect { s.incorrectly_annotated }
       .to raise_error(
-        TypeContracts::ParameterDoesNotExistError,
+        MethodContracts::ParameterDoesNotExistError,
         'Parameter ParamsSampleClass#incorrectly_annotated.does_not_exist does not exist'
       )
   end
@@ -122,7 +122,7 @@ RSpec.describe TypeContracts::Param do
     expect { s.one_of_many(:symbol) }.not_to raise_error
     expect { s.one_of_many(nil) }
       .to raise_error(
-        TypeContracts::BrokenParamContractError,
+        MethodContracts::BrokenParamContractError,
         'ParamsSampleClass#one_of_many.x was nil, which does not match: <any of: be a String, be a Symbol>'
       )
   end
@@ -133,12 +133,12 @@ RSpec.describe TypeContracts::Param do
     expect { s.two_params('str', 1) }.not_to raise_error
     expect { s.two_params(:not_a_string, 1) }
       .to raise_error(
-        TypeContracts::BrokenParamContractError,
+        MethodContracts::BrokenParamContractError,
         'ParamsSampleClass#two_params.a was :not_a_string, which does not match: be a String'
       )
     expect { s.two_params('string', :NaN) }
       .to raise_error(
-        TypeContracts::BrokenParamContractError,
+        MethodContracts::BrokenParamContractError,
         'ParamsSampleClass#two_params.b was :NaN, which does not match: be a Numeric'
       )
   end
@@ -152,7 +152,7 @@ RSpec.describe TypeContracts::Param do
 
     expect { s.splatted('1', '2', '3') }
       .to raise_error(
-        TypeContracts::BrokenParamContractError,
+        MethodContracts::BrokenParamContractError,
         'ParamsSampleClass#splatted.args was ["1", "2", "3"], which does not match: an array of elements matching be a Integer'
       )
   end
@@ -188,7 +188,7 @@ RSpec.describe TypeContracts::Param do
   it 'supports self.<method> methods' do
     expect(ParamsSampleClass.self_method(10)).to eq 10
     expect { ParamsSampleClass.self_method(:not_an_int) }.to raise_error(
-      TypeContracts::BrokenParamContractError,
+      MethodContracts::BrokenParamContractError,
       'ParamsSampleClass#self_method.x was :not_an_int, which does not match: be a Integer'
     )
   end
@@ -198,14 +198,14 @@ RSpec.describe TypeContracts::Param do
 
     expect(ParamsSampleClass.singleton_class_method(10)).to eq 10
     expect { ParamsSampleClass.singleton_class_method(:not_an_int) }.to raise_error(
-      TypeContracts::BrokenParamContractError,
+      MethodContracts::BrokenParamContractError,
       'ParamsSampleClass#singleton_class_method.x was :not_an_int, which does not match: be a Integer'
     )
   end
 
   it 'supports attr_writer-generated methods' do
     class WithAttrWriter
-      extend TypeContracts::T
+      extend MethodContracts::T
 
       param :value, String
       attr_writer :attr_writer_property
@@ -219,14 +219,14 @@ RSpec.describe TypeContracts::Param do
       .to('a string')
 
     expect { o.attr_writer_property = :not_a_string }.to raise_error(
-      TypeContracts::BrokenParamContractError,
+      MethodContracts::BrokenParamContractError,
       'WithAttrWriter#attr_writer_property=.value was :not_a_string, which does not match: be a String'
     )
   end
 
   it 'supports attr_accessor-generated methods' do
     class WithAttrAccessor
-      extend TypeContracts::T
+      extend MethodContracts::T
 
       param :value, String
       attr_accessor :attr_accessor_property
@@ -240,14 +240,14 @@ RSpec.describe TypeContracts::Param do
       .to('a string')
 
     expect { o.attr_accessor_property = :not_a_string }.to raise_error(
-      TypeContracts::BrokenParamContractError,
+      MethodContracts::BrokenParamContractError,
       'WithAttrAccessor#attr_accessor_property=.value was :not_a_string, which does not match: be a String'
     )
   end
 
   it 'supports inherited methods' do
     class Superclass
-      extend TypeContracts::T
+      extend MethodContracts::T
 
       param :x, String
       def inherited_method(x)
@@ -258,14 +258,14 @@ RSpec.describe TypeContracts::Param do
     class Subclass < Superclass; end
 
     expect { Subclass.new.inherited_method(:not_a_string) }.to raise_error(
-      TypeContracts::BrokenParamContractError,
+      MethodContracts::BrokenParamContractError,
       'Subclass#inherited_method.x was :not_a_string, which does not match: be a String'
     )
   end
 
   it 'supports inherited methods that call super' do
     class Superclass
-      extend TypeContracts::T
+      extend MethodContracts::T
 
       param :x, String
       def inherited_method(x)
@@ -280,14 +280,14 @@ RSpec.describe TypeContracts::Param do
     end
 
     expect { Subclass.new.inherited_method(:not_a_string) }.to raise_error(
-      TypeContracts::BrokenParamContractError,
+      MethodContracts::BrokenParamContractError,
       'Subclass#inherited_method.x was :not_a_string, which does not match: be a String'
     )
   end
 
   it 'supports methods added from including a mixin' do
     module Mixin
-      extend TypeContracts::T
+      extend MethodContracts::T
 
       param :x, String
       def mixin_method(x)
@@ -300,14 +300,14 @@ RSpec.describe TypeContracts::Param do
     end
 
     expect { User.new.mixin_method(:not_a_string) }.to raise_error(
-      TypeContracts::BrokenParamContractError,
+      MethodContracts::BrokenParamContractError,
       'User#mixin_method.x was :not_a_string, which does not match: be a String'
     )
   end
 
   it 'supports methods added from extending another module' do
     module Extendee
-      extend TypeContracts::T
+      extend MethodContracts::T
 
       param :x, String
       def mixin_method(x)
@@ -320,7 +320,7 @@ RSpec.describe TypeContracts::Param do
     end
 
     expect { Extender.mixin_method(:not_a_string) }.to raise_error(
-      TypeContracts::BrokenParamContractError,
+      MethodContracts::BrokenParamContractError,
       'Extender#mixin_method.x was :not_a_string, which does not match: be a String'
     )
   end

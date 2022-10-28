@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module TypeContracts
+module MethodContracts
   module Matchers
     class Base
       def match?(value)

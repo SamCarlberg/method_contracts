@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe TypeContracts::Matchers::Structure::ArrayStructureMatcher do
+RSpec.describe MethodContracts::Matchers::Structure::ArrayStructureMatcher do
   it 'supports basic matching' do
     matcher = described_class.new(String)
 

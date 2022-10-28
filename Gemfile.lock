@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    type_contracts (0.1.0)
+    method_contracts (0.1.0)
 
 GEM
   remote: https://rubygems.org/
@@ -54,7 +54,7 @@ DEPENDENCIES
   rspec
   rubocop-git
   rubocop-rspec
-  type_contracts!
+  method_contracts!
 
 BUNDLED WITH
    2.2.26

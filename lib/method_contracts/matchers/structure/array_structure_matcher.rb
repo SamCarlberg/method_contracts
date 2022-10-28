@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-module TypeContracts
+module MethodContracts
   module Matchers
     module Structure
-      class ArrayStructureMatcher < TypeContracts::Matchers::Base
+      class ArrayStructureMatcher < MethodContracts::Matchers::Base
         def initialize(element_contract)
-          @element_matcher = TypeContracts.contract_to_matcher(element_contract)
+          @element_matcher = MethodContracts.contract_to_matcher(element_contract)
         end
 
         def match?(array)

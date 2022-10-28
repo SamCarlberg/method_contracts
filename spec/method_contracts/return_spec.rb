@@ -2,10 +2,10 @@
 
 require 'spec_helper'
 
-RSpec.describe TypeContracts::Return do
+RSpec.describe MethodContracts::Return do
   let(:clazz) do
     class Sample
-      extend TypeContracts::T
+      extend MethodContracts::T
 
       returns nil
       def returns_nil(x)
@@ -31,7 +31,7 @@ RSpec.describe TypeContracts::Return do
   end
 
   before do
-    allow(TypeContracts.config)
+    allow(MethodContracts.config)
       .to receive(:enabled?)
       .and_return(true)
   end
@@ -47,7 +47,7 @@ RSpec.describe TypeContracts::Return do
     expect { s.returns_nil(nil) }.not_to raise_error
     expect { s.returns_nil('not nil') }
       .to raise_error(
-        TypeContracts::BrokenReturnValueContractError,
+        MethodContracts::BrokenReturnValueContractError,
         'Sample#returns_nil returned "not nil", which does not match: equal nil'
       )
   end
@@ -57,7 +57,7 @@ RSpec.describe TypeContracts::Return do
 
     expect { s.returns_string(nil) }
       .to raise_error(
-        TypeContracts::BrokenReturnValueContractError,
+        MethodContracts::BrokenReturnValueContractError,
         'Sample#returns_string returned nil, which does not match: be a String'
       )
     expect { s.returns_string('string') }
@@ -75,7 +75,7 @@ RSpec.describe TypeContracts::Return do
 
     expect(s.blocked(1)).to eq 1
     expect { s.blocked(0) }.to raise_error(
-      TypeContracts::BrokenReturnValueContractError,
+      MethodContracts::BrokenReturnValueContractError,
       'Sample#blocked returned 0, which does not match: <custom matcher>'
     )
   end

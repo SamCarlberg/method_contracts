@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
-module TypeContracts
+module MethodContracts
   # An intermediary module that, when extended, will add all methods pertaining to type contracts
   # to the class or module doing the extending.
   #
   # @example
   #   module MyModule
-  #     extend TypeContracts::T
+  #     extend MethodContracts::T
   #   end
   module T
-    include TypeContracts::Annotations
-    include TypeContracts::Overrides
-    include TypeContracts::Param::Mixin
-    include TypeContracts::Return::Mixin
+    include MethodContracts::Annotations
+    include MethodContracts::Overrides
+    include MethodContracts::Param::Mixin
+    include MethodContracts::Return::Mixin
   end
 end

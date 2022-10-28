@@ -1,19 +1,19 @@
-# TypeContracts
+# MethodContracts
 
-A pure Ruby implementation of runtime type checking.
+A pure Ruby implementation of parameter and return value checking.
 
 This adds runtime type checking and validation to method parameters and return values.  By default, this gem only supports validating types and exact values, but custom matchers can be created and specified.  Contracts can be specified on parameters using the `params <param_name>, <contract>` syntax; contracts on return values can be specified by `returns <contract>`, `returns_a <Type>`, or `returns_an <Type>` (eg `returns_a String`, `returns_an ArrayOf(String)`).
 
 Contracts can be specified as a module/class, which will test for inheritance (`param :foo, String`); an explicit value, which will test for equality `param :foo, 'A string'`; a regular expression (`param :foo, /An? (array|string)/`); an array of elements that all match the same contract (`param :foo, ArrayOf(String)`); a hash with keys matching one contract and values matching another (`param :hash, HashOf(Symbol, Integer)`); or an array of contracts, which will test that any contract in that array matches (`param :foo, [String, Symbol]` matches when `foo` is either a string or a symbol).
 
-If none of the built-in contract types work, you can subclass `TypeContracts::Matchers::Base` and define the `match?(value)` and `to_s` methods, then pass an instance of your custom matcher to the `param` or `return` call.
+If none of the built-in contract types work, you can subclass `MethodContracts::Matchers::Base` and define the `match?(value)` and `to_s` methods, then pass an instance of your custom matcher to the `param` or `return` call.
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'type_contracts'
+gem 'method_contracts', git: 'git@github.com:SamCarlberg/method_contracts.git'
 ```
 
 And then execute:
@@ -22,7 +22,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install type_contracts
+    $ gem install method_contracts
 
 ## Usage
 
@@ -172,7 +172,7 @@ end
 ### Create a custom matcher
 
 ```ruby
-class PositiveNumber < TypeContracts::Matchers::Base
+class PositiveNumber < MethodContracts::Matchers::Base
   def match?(value)
     value.is_a?(Numeric) && value > 0
   end
@@ -190,7 +190,7 @@ class UsingCustomMatcher
 end
 
 UsingCustomMatcher.new.foo(1) # => "ok"
-UsingCustomMatcher.new.foo(0) # => TypeContracts::BrokenParamContractError: UsingCustomMatcher#foo.bar was 0, which does not match: be a positive number
+UsingCustomMatcher.new.foo(0) # => MethodContracts::BrokenParamContractError: UsingCustomMatcher#foo.bar was 0, which does not match: be a positive number
 ```
 
 ### Configuration
@@ -198,7 +198,7 @@ UsingCustomMatcher.new.foo(0) # => TypeContracts::BrokenParamContractError: Usin
 Type contracts are disabled by default, and can be enabled via the configuration object:
 
 ```ruby
-TypeContracts.configure do |config|
+MethodContracts.configure do |config|
   config.enabled = true
 end
 ```
@@ -207,17 +207,17 @@ This must be set before any classes that use type contracts are loaded.
 
 Contracts can be added globally to all modules via `config.include_everywhere!`; however, be careful when using this since it can potentially cause conflicts with modules that already define methods named `annotations`, `param`, `returns`, `returns_a`, or `returns_an`.
 
-Contracts can be added to specific modules by extending the `TypeContracts::T` module:
+Contracts can be added to specific modules by extending the `MethodContracts::T` module:
 
 ```ruby
 module MyModule
-  extend TypeContracts::T
+  extend MethodContracts::T
 
   # ... module contents ...
 end
 
 class MyClass
-  extend TypeContracts::T
+  extend MethodContracts::T
 
   # ... class contents ...
 end
@@ -231,7 +231,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/samcarlberg/type_contracts.
+Bug reports and pull requests are welcome on GitHub at https://github.com/samcarlberg/method_contracts.
 
 ## License
 

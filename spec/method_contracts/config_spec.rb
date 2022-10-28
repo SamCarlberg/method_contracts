@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe TypeContracts::Config do
+RSpec.describe MethodContracts::Config do
   before do
     clean_reset
   end
@@ -25,7 +25,7 @@ RSpec.describe TypeContracts::Config do
   end
 
   it 'applies to Module when included everywhere' do
-    expect(TypeContracts).to receive(:apply!).with(Module)
+    expect(MethodContracts).to receive(:apply!).with(Module)
 
     described_class.config.enabled = true
     described_class.config.include_everywhere!

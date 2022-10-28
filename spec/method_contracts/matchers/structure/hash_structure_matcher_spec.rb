@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe TypeContracts::Matchers::Structure::HashStructureMatcher do
+RSpec.describe MethodContracts::Matchers::Structure::HashStructureMatcher do
   it 'supports basic matching' do
     matcher = described_class.new(Symbol, Symbol)
 

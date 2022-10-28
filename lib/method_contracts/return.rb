@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module TypeContracts
+module MethodContracts
   class Return
     NO_CONTRACT = Object.new.freeze
 
@@ -15,12 +15,12 @@ module TypeContracts
       #   a block provided instead; the block accepts the return value of the method and must
       #   return a boolean value
       def returns(contract = NO_CONTRACT, &block)
-        contract = TypeContracts::Return.new(contract, &block)
+        contract = MethodContracts::Return.new(contract, &block)
 
-        @__type_contracts__last_annotation ||= {}
-        raise 'A contract already exists for the return value' if @__type_contracts__last_annotation[:return]
+        @__method_contracts__last_annotation ||= {}
+        raise 'A contract already exists for the return value' if @__method_contracts__last_annotation[:return]
 
-        @__type_contracts__last_annotation[:return] = contract
+        @__method_contracts__last_annotation[:return] = contract
       end
 
       def returns_a(value)
@@ -37,12 +37,12 @@ module TypeContracts
       raise 'Contract or block is required' if block.nil? && contract == NO_CONTRACT
 
       @contract = block || contract
-      @matcher = TypeContracts.contract_to_matcher(@contract)
+      @matcher = MethodContracts.contract_to_matcher(@contract)
     end
 
     def check_contract!(clazz, method_name, value)
       unless @matcher.match?(value)
-        raise TypeContracts::BrokenReturnValueContractError.new(clazz.name, method_name, @matcher, value)
+        raise MethodContracts::BrokenReturnValueContractError.new(clazz.name, method_name, @matcher, value)
       end
     end
   end

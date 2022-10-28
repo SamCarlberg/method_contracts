@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-module TypeContracts
+module MethodContracts
   module Annotations
     def annotations(method_name = nil)
-      return @__type_contracts__annotations[method_name] if method_name
+      return @__method_contracts__annotations[method_name] if method_name
 
-      @__type_contracts__annotations
+      @__method_contracts__annotations
     end
 
     class MethodRedefinition
@@ -40,7 +40,7 @@ module TypeContracts
         annotation[:_redefined] = false
 
         # Only redefine the method if the library is enabled
-        return unless TypeContracts.config.enabled?
+        return unless MethodContracts.config.enabled?
 
         param_contracts = annotation[:params] || [] # default in case no param annotations exist
         return_contract = annotation[:return]
@@ -61,12 +61,12 @@ module TypeContracts
           redefiner = annotation[:_redefiner]
           recombined = redefiner.recombine(*args, **kwargs)
 
-          if recombined.values.none? { |v| v == TypeContracts::Annotations::MethodRedefinition::NOT_PROVIDED }
+          if recombined.values.none? { |v| v == MethodContracts::Annotations::MethodRedefinition::NOT_PROVIDED }
             # Skip validation if any param is not provided;
             # we'll get an error later when the argument list size mismatches
             param_contracts.each do |contract|
               unless recombined.key?(contract.param_name)
-                raise TypeContracts::ParameterDoesNotExistError.new(
+                raise MethodContracts::ParameterDoesNotExistError.new(
                   redefiner.clazz.name,
                   redefiner.method_name,
                   contract.param_name
@@ -172,11 +172,11 @@ module TypeContracts
     def method_added(m)
       super
 
-      if annotation = @__type_contracts__last_annotation
-        @__type_contracts__last_annotation = nil
-        (@__type_contracts__annotations ||= {})[m] = annotation
+      if annotation = @__method_contracts__last_annotation
+        @__method_contracts__last_annotation = nil
+        (@__method_contracts__annotations ||= {})[m] = annotation
 
-        return unless TypeContracts.config.enabled?
+        return unless MethodContracts.config.enabled?
         redefiner = MethodRedefinition.new(self, m, method_type: MethodRedefinition::INSTANCE_METHOD)
         annotation[:_redefiner] = redefiner
         redefiner.redefine!(annotation)
@@ -186,11 +186,11 @@ module TypeContracts
     def singleton_method_added(m)
       super
 
-      if annotation = @__type_contracts__last_annotation
-        @__type_contracts__last_annotation = nil
-        (@__type_contracts__annotations ||= {})[m] = annotation
+      if annotation = @__method_contracts__last_annotation
+        @__method_contracts__last_annotation = nil
+        (@__method_contracts__annotations ||= {})[m] = annotation
 
-        return unless TypeContracts.config.enabled?
+        return unless MethodContracts.config.enabled?
         redefiner = MethodRedefinition.new(self, m, method_type: MethodRedefinition::SINGLETON_METHOD)
         annotation[:_redefiner] = redefiner
         redefiner.redefine!(annotation)

@@ -1,23 +1,23 @@
 # frozen_string_literal: true
 
-require_relative 'type_contracts/annotations'
-require_relative 'type_contracts/config'
-require_relative 'type_contracts/overrides'
-require_relative 'type_contracts/param'
-require_relative 'type_contracts/return'
-require_relative 'type_contracts/t'
-require_relative 'type_contracts/version'
-require_relative 'type_contracts/matchers/base'
-require_relative 'type_contracts/matchers/custom_proc'
-require_relative 'type_contracts/matchers/exactly'
-require_relative 'type_contracts/matchers/instanceof'
-require_relative 'type_contracts/matchers/match_any'
-require_relative 'type_contracts/matchers/regular_expression'
-require_relative 'type_contracts/matchers/structure'
-require_relative 'type_contracts/matchers/structure/array_structure_matcher'
-require_relative 'type_contracts/matchers/structure/hash_structure_matcher'
+require_relative 'method_contracts/annotations'
+require_relative 'method_contracts/config'
+require_relative 'method_contracts/overrides'
+require_relative 'method_contracts/param'
+require_relative 'method_contracts/return'
+require_relative 'method_contracts/t'
+require_relative 'method_contracts/version'
+require_relative 'method_contracts/matchers/base'
+require_relative 'method_contracts/matchers/custom_proc'
+require_relative 'method_contracts/matchers/exactly'
+require_relative 'method_contracts/matchers/instanceof'
+require_relative 'method_contracts/matchers/match_any'
+require_relative 'method_contracts/matchers/regular_expression'
+require_relative 'method_contracts/matchers/structure'
+require_relative 'method_contracts/matchers/structure/array_structure_matcher'
+require_relative 'method_contracts/matchers/structure/hash_structure_matcher'
 
-module TypeContracts
+module MethodContracts
   class Error < StandardError; end
 
   class BrokenParamContractError < Error
@@ -43,7 +43,7 @@ module TypeContracts
   end
 
   def self.contract_to_matcher(contract)
-    if contract.is_a?(Class) && contract < TypeContracts::Matchers::Base
+    if contract.is_a?(Class) && contract < MethodContracts::Matchers::Base
       # Given a matcher class that doesn't take any constructor args
       # Return a new instance of that matcher
       if contract.instance_method(:initialize).arity.zero?
@@ -54,18 +54,18 @@ module TypeContracts
     end
 
     case contract
-    when TypeContracts::Matchers::Base
+    when MethodContracts::Matchers::Base
       contract # If given a custom matcher object, use it
     when Regexp
-      TypeContracts::Matchers::RegularExpression.new(contract)
+      MethodContracts::Matchers::RegularExpression.new(contract)
     when Proc
-      TypeContracts::Matchers::CustomProc.new(contract)
+      MethodContracts::Matchers::CustomProc.new(contract)
     when Array
-      TypeContracts::Matchers::MatchAny.new(contract)
+      MethodContracts::Matchers::MatchAny.new(contract)
     when Module
-      TypeContracts::Matchers::Instanceof.new(contract)
+      MethodContracts::Matchers::Instanceof.new(contract)
     else
-      TypeContracts::Matchers::Exactly.new(contract)
+      MethodContracts::Matchers::Exactly.new(contract)
     end
   end
 
@@ -82,7 +82,7 @@ module TypeContracts
   #
   # @example
   #  class MyClass
-  #   TypeContracts.apply!(self)
+  #   MethodContracts.apply!(self)
   #
   #   param :obj, String
   #   returns nil
@@ -96,6 +96,6 @@ module TypeContracts
   #
   # @param module_or_class [Module] the module or class to apply type contracts to.
   def self.apply!(module_or_class)
-    module_or_class.extend TypeContracts::T
+    module_or_class.extend MethodContracts::T
   end
 end
